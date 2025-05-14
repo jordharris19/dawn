@@ -133,6 +133,64 @@
                     {%- endif -%}
                   </div>
                 {%- endif -%}
+                                <div {{ block.shopify_attributes }}>
+                <div class="variant-image-container">
+  {% for variant in product.variants %}
+    {% if variant.image %}
+      <img src="{{ variant.image.src | img_url: 'small' }}" alt="{{ variant.title }}" class="variant-image" data-variant-id="{{ variant.id }}" data-variant-url="{{ variant.url }}" data-large="{{ variant.image | img_url: '300x300' }}"  />
+    {% endif %}
+  {% endfor %}
+</div>
+
+                  <script>
+function getFullSizeImageUrl(src) {
+  // Removes any Shopify size suffix like _small, _600x600, _large, etc.
+  return src.replace(/_(small|medium|large|\d+x\d+)(?=\.\w{3,4})/, '');
+}
+
+
+function updateMainImageWithVariant(variantImgSrc) {
+  const mainImage = document.querySelector('.product__media img');
+  if (!mainImage) return;
+
+  const baseUrl = getFullSizeImageUrl(variantImgSrc).split('?')[0];
+
+  // Optional: preserve ?v=... query
+  const queryMatch = variantImgSrc.match(/(\?v=\d+)/);
+  const query = queryMatch ? queryMatch[1] : '';
+
+  const widths = [246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946];
+  const srcset = widths.map(w => `${baseUrl}?width=${w}${query} ${w}w`).join(', ');
+
+  mainImage.src = `${baseUrl}?width=1946${query}`;
+  mainImage.srcset = srcset;
+  mainImage.setAttribute('data-original-src', `${baseUrl}?width=1946${query}`);
+}
+
+document.querySelectorAll('.variant-image').forEach(thumb => {
+  const variantId = thumb.dataset.variantId;
+
+  // Hover to update image
+  thumb.addEventListener('mouseenter', () => {
+    updateMainImageWithVariant(thumb.src);
+  });
+
+  thumb.addEventListener('mouseleave', () => {
+    const mainImage = document.querySelector('.product__media img');
+    if (mainImage && mainImage.dataset.originalSrc) {
+      updateMainImageWithVariant(mainImage.dataset.originalSrc);
+    }
+  });
+
+  // Click to go to variant URL
+  thumb.addEventListener('click', () => {
+    if (!variantId) return;
+    const baseUrl = window.location.href.split('?')[0]; // current product URL
+    window.location.href = `${baseUrl}?variant=${variantId}`;
+  });
+});
+
+</script>
                 <div {{ block.shopify_attributes }}>
                   {%- assign product_form_installment_id = 'product-form-installment-' | append: section.id -%}
                   {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
