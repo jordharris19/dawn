@@ -105,6 +105,16 @@
                     </h2>
                   </a>
                 </div>
+                {% if product.variants.size > 1 %}
+                <div class="variant-selected"> {{ product.selected_or_first_available_variant.title }}</div>
+                 <div class="variant-image-container">
+                  {% for variant in product.variants %}
+                    {% if variant.image %}
+                      <img src="{{ variant.image.src | img_url: 'small' }}" alt="{{ variant.title }}" class="variant-image{% if variant.id == product.selected_or_first_available_variant.id %} active{% endif %}" data-variant-id="{{ variant.id }}" data-variant-url="{{ variant.url }}" data-large="{{ variant.image | img_url: '300x300' }}"  />
+                    {% endif %}
+                  {% endfor %}
+                </div>
+                {% endif %}
               {%- when 'price' -%}
                 <div id="price-{{ section.id }}" role="status" {{ block.shopify_attributes }}>
                   {%- render 'price',
@@ -134,20 +144,13 @@
                   </div>
                 {%- endif -%}
                                 <div {{ block.shopify_attributes }}>
-                <div class="variant-image-container">
-  {% for variant in product.variants %}
-    {% if variant.image %}
-      <img src="{{ variant.image.src | img_url: 'small' }}" alt="{{ variant.title }}" class="variant-image" data-variant-id="{{ variant.id }}" data-variant-url="{{ variant.url }}" data-large="{{ variant.image | img_url: '300x300' }}"  />
-    {% endif %}
-  {% endfor %}
-</div>
+
 
                   <script>
 function getFullSizeImageUrl(src) {
   // Removes any Shopify size suffix like _small, _600x600, _large, etc.
   return src.replace(/_(small|medium|large|\d+x\d+)(?=\.\w{3,4})/, '');
 }
-
 
 function updateMainImageWithVariant(variantImgSrc) {
   const mainImage = document.querySelector('.product__media img');
@@ -190,7 +193,7 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
   });
 });
 
-</script>
+</script> 
                 <div {{ block.shopify_attributes }}>
                   {%- assign product_form_installment_id = 'product-form-installment-' | append: section.id -%}
                   {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
@@ -268,23 +271,34 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
               {%- when 'custom_liquid' -%}
                 {{ block.settings.custom_liquid }}
               {%- when 'collapsible_tab' -%}
-                <div class="product__accordion accordion quick-add-hidden" {{ block.shopify_attributes }}>
-                  <details id="Details-{{ block.id }}-{{ section.id }}">
-                    <summary>
-                      <div class="summary__title">
-                        {% render 'icon-accordion', icon: block.settings.icon %}
-                        <h2 class="h4 accordion__title inline-richtext">
-                          {{ block.settings.heading | default: block.settings.page.title | escape }}
-                        </h2>
-                      </div>
-                      {{- 'icon-caret.svg' | inline_asset_content -}}
-                    </summary>
-                    <div class="accordion__content rte" id="ProductAccordion-{{ block.id }}-{{ section.id }}">
-                      {{ block.settings.content }}
-                      {{ block.settings.page.content }}
-                    </div>
-                  </details>
-                </div>
+  {%- comment -%}
+    Only render this block if either `block.settings.content`
+    or `block.settings.page.content` is non-blank.
+  {%- endcomment -%}
+
+  {%- assign raw_content    = block.settings.content | strip_html | strip -%}
+  {%- assign raw_page_content = block.settings.page.content | strip_html | strip -%}
+
+  {%- if raw_content != blank or raw_page_content != blank -%}
+    <div class="product__accordion accordion quick-add-hidden" {{ block.shopify_attributes }}>
+      <details id="Details-{{ block.id }}-{{ section.id }}">
+        <summary>
+          <div class="summary__title">
+            {% render 'icon-accordion', icon: block.settings.icon %}
+            <h2 class="h4 accordion__title inline-richtext">
+              {{ block.settings.heading | default: block.settings.page.title | escape }}
+            </h2>
+          </div>
+          {{- 'icon-caret.svg' | inline_asset_content -}}
+        </summary>
+        <div class="accordion__content rte" id="ProductAccordion-{{ block.id }}-{{ section.id }}">
+          {{ block.settings.content }}
+          {{ block.settings.page.content }}
+        </div>
+      </details>
+    </div>
+  {%- endif -%}
+
               {%- when 'quantity_selector' -%}
                 <div
                   id="Quantity-Form-{{ section.id }}"
@@ -567,6 +581,18 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
                     </p>
                   </div>
                 {%- endif -%}
+                {% when 'single_image' %}
+                <div
+                  class="one-image-wrapper"
+                  style="text-align: {{ block.settings.alignment }};"
+                >
+                  <img
+                    src="{{ block.settings.image | img_url: 'master' }}"
+                    alt="{{ block.settings.image.alt | escape }}"
+                    style="display:inline-block; width: {{ block.settings.width }}%;"
+                  />
+                </div>
+
               {%- when 'complementary' -%}
                 <product-recommendations
                   class="complementary-products quick-add-hidden{% if block.settings.make_collapsible_row %} is-accordion{% endif %}{% if block.settings.enable_quick_add %} complementary-products-contains-quick-add{% endif %}"
@@ -907,6 +933,38 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
       "name": "t:sections.main-product.blocks.quantity_selector.name",
       "limit": 1
     },
+    {
+      "type": "single_image",
+      "name": "Custom image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Select image"
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "options": [
+            { "value": "left",   "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right",  "label": "Right" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "range",
+          "id": "width",
+          "label": "Width (%)",
+          "min": 10,
+          "max": 100,
+          "step": 1,
+          "unit": "%",
+          "default": 100
+        }
+      ]
+    },   
     {
       "type": "variant_picker",
       "name": "t:sections.main-product.blocks.variant_picker.name",

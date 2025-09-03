@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "image_banner": {
@@ -6,14 +15,14 @@
         "heading": {
           "type": "heading",
           "settings": {
-            "heading": "Image banner",
+            "heading": "Elevate Every Room with Timeless Elegance",
             "heading_size": "h0"
           }
         },
         "text": {
           "type": "text",
           "settings": {
-            "text": "Give customers details about the banner image(s) or content on the template.",
+            "text": "Luxury finishes, thoughtful layouts—spaces that inspire daily living.",
             "text_style": "body"
           }
         },
@@ -35,15 +44,147 @@
         "button"
       ],
       "settings": {
+        "image": "shopify://shop_images/Screenshot2024-01-03110339_1024x1024_2x_54cba72e-045f-4188-9496-6fc8e02f2f72.webp",
         "image_overlay_opacity": 40,
         "image_height": "large",
+        "image_behavior": "none",
         "desktop_content_position": "bottom-center",
-        "show_text_box": false,
         "desktop_content_alignment": "center",
+        "show_text_box": false,
         "color_scheme": "scheme-3",
-        "mobile_content_alignment": "center",
         "stack_images_on_mobile": false,
+        "mobile_content_alignment": "center",
         "show_text_below": false
+      }
+    },
+    "homepage_image_xcaimJ": {
+      "type": "homepage-image",
+      "blocks": {
+        "image_item_CRxMAf": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/3fad78a92524ab6a4114faedbc73f32c.webp",
+            "title": "Sofas",
+            "subtitle": "Comfort & Style",
+            "link": ""
+          }
+        },
+        "image_item_KcdKzA": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/46a05f7dd414b029adfb3c7686955c2b.webp",
+            "title": "Dining Room",
+            "subtitle": "Gather Together",
+            "link": ""
+          }
+        },
+        "image_item_HJyVaM": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/057b9696f2665625b85d0e613a62ebb3.webp",
+            "title": "Bedroom",
+            "subtitle": "Rest & Relax",
+            "link": ""
+          }
+        },
+        "image_item_JBdJ6A": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/30b3afc23b1c8d3f5a0ad07860eab5a0.webp",
+            "title": "Office",
+            "subtitle": "Work Smart",
+            "link": ""
+          }
+        },
+        "image_item_YGzVqQ": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/f629048d71e1b4b4b6534c2341df68ad.webp",
+            "title": "Chairs",
+            "subtitle": "Seating Solutions",
+            "link": ""
+          }
+        },
+        "image_item_WzRnYt": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/d2fb2b9d921c19909f8b0f40f3da6374.webp",
+            "title": "Sideboards",
+            "subtitle": "Storage & Style",
+            "link": ""
+          }
+        },
+        "image_item_XcXPMA": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/b70ab2e56e44872a90f0ff724f791d0f.webp",
+            "title": "Coffee Tables",
+            "subtitle": "Center of Attention",
+            "link": ""
+          }
+        },
+        "image_item_gEQzG4": {
+          "type": "image_item",
+          "settings": {
+            "title": "Accessories",
+            "subtitle": "Finishing Touches",
+            "link": ""
+          }
+        },
+        "image_item_cLTJDt": {
+          "type": "image_item",
+          "settings": {
+            "title": "Garden",
+            "subtitle": "Outdoor Living",
+            "link": ""
+          }
+        },
+        "image_item_aMTafE": {
+          "type": "image_item",
+          "settings": {
+            "title": "Lighting",
+            "subtitle": "Illuminate",
+            "link": ""
+          }
+        },
+        "image_item_rFrKTt": {
+          "type": "image_item",
+          "settings": {
+            "title": "Storage",
+            "subtitle": "Organize & Display",
+            "link": ""
+          }
+        },
+        "image_item_9LKbNz": {
+          "type": "image_item",
+          "settings": {
+            "title": "New Arrivals",
+            "subtitle": "Latest Styles",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "image_item_CRxMAf",
+        "image_item_KcdKzA",
+        "image_item_HJyVaM",
+        "image_item_JBdJ6A",
+        "image_item_YGzVqQ",
+        "image_item_WzRnYt",
+        "image_item_XcXPMA",
+        "image_item_gEQzG4",
+        "image_item_cLTJDt",
+        "image_item_aMTafE",
+        "image_item_rFrKTt",
+        "image_item_9LKbNz"
+      ],
+      "name": "Product Grid",
+      "settings": {
+        "title": "Discover Our Collections",
+        "subtitle": "Explore our carefully curated selection of furniture and home accessories",
+        "background_color": "#ffffff",
+        "title_color": "#333333",
+        "subtitle_color": "#666666"
       }
     },
     "rich_text": {
@@ -52,14 +193,14 @@
         "heading": {
           "type": "heading",
           "settings": {
-            "heading": "Talk about your brand",
+            "heading": "About Divinio Interiors",
             "heading_size": "h1"
           }
         },
         "text": {
           "type": "text",
           "settings": {
-            "text": "<p>Share information about your brand with your customers. Describe a product, make announcements, or welcome customers to your store.<\/p>"
+            "text": "<p>At Divinio Interiors, we believe your home should be a celebration of your personal style and comfort. From hand-finished beds and sumptuous sofas to bespoke wall panels and elegant bedside tables, every piece in our collection is crafted with meticulous attention to detail and an unwavering commitment to quality.</p>"
           }
         }
       },
@@ -68,6 +209,8 @@
         "text"
       ],
       "settings": {
+        "desktop_content_position": "center",
+        "content_alignment": "center",
         "color_scheme": "scheme-1",
         "full_width": true,
         "padding_top": 40,
@@ -77,134 +220,102 @@
     "featured_collection": {
       "type": "featured-collection",
       "settings": {
-        "title": "Featured products",
-        "heading_size": "h2",
         "collection": "all",
         "products_to_show": 8,
+        "title": "Featured products",
+        "heading_size": "h2",
+        "description": "",
+        "show_description": false,
+        "description_style": "body",
         "columns_desktop": 4,
-        "color_scheme": "scheme-1",
+        "enable_desktop_slider": false,
+        "full_width": false,
         "show_view_all": false,
-        "swipe_on_mobile": false,
-        "image_ratio": "adapt",
+        "view_all_style": "solid",
+        "color_scheme": "scheme-1",
+        "image_ratio": "square",
+        "image_shape": "default",
         "show_secondary_image": true,
         "show_vendor": false,
         "show_rating": false,
+        "quick_add": "none",
         "columns_mobile": "2",
+        "swipe_on_mobile": false,
         "padding_top": 28,
         "padding_bottom": 36
       }
     },
-    "collage": {
-      "type": "collage",
+    "rich_text_Lqqj4y": {
+      "type": "rich-text",
       "blocks": {
-        "collection-0": {
-          "type": "collection",
+        "heading_DDENRj": {
+          "type": "heading",
           "settings": {
-            "collection": ""
-          }
-        },
-        "product": {
-          "type": "product",
-          "settings": {
-            "product": "",
-            "second_image": false
-          }
-        },
-        "collection-1": {
-          "type": "collection",
-          "settings": {
-            "collection": ""
+            "heading": "What our customers say",
+            "heading_size": "h1"
           }
         }
       },
       "block_order": [
-        "collection-0",
-        "product",
-        "collection-1"
+        "heading_DDENRj"
       ],
+      "name": "t:sections.rich-text.presets.name",
       "settings": {
-        "heading": "Multimedia collage",
-        "heading_size": "h2",
-        "desktop_layout": "left",
-        "mobile_layout": "collage",
-        "color_scheme": "scheme-1",
-        "padding_top": 36,
-        "padding_bottom": 36
+        "desktop_content_position": "center",
+        "content_alignment": "center",
+        "color_scheme": "",
+        "full_width": true,
+        "padding_top": 4,
+        "padding_bottom": 0
       }
     },
-    "video": {
-      "type": "video",
+    "custom_liquid_FD8whE": {
+      "type": "custom-liquid",
+      "name": "t:sections.custom-liquid.presets.name",
       "settings": {
-        "heading": "",
-        "video_url": "https://www.youtube.com/watch?v=_9VUPq3SxOc",
-        "heading_size": "h1",
-        "description": "",
-        "full_width": false,
-        "color_scheme": "scheme-1",
-        "padding_top": 36,
-        "padding_bottom": 36
+        "custom_liquid": "{% render 'external-google-reviews' %}",
+        "color_scheme": "",
+        "padding_top": 12,
+        "padding_bottom": 20
       }
     },
-    "multicolumn": {
-      "type": "multicolumn",
+    "one_image_rkiiLE": {
+      "type": "one-image",
       "blocks": {
-        "column1": {
-          "type": "column",
+        "single_image_4UEBiF": {
+          "type": "single_image",
           "settings": {
-            "title": "Column",
-            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.<\/p>",
-            "link_label": "",
-            "link": ""
-          }
-        },
-        "column2": {
-          "type": "column",
-          "settings": {
-            "title": "Column",
-            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.<\/p>",
-            "link_label": "",
-            "link": ""
-          }
-        },
-        "column3": {
-          "type": "column",
-          "settings": {
-            "title": "Column",
-            "text": "<p>Pair text with an image to focus on your chosen product, collection, or blog post. Add details on availability, style, or even provide a review.<\/p>",
-            "link_label": "",
-            "link": ""
+            "image": "shopify://shop_images/Website_banner_1920x100_1d7437d6-f3e6-41b5-807b-46dabd820cc8.png",
+            "alignment": "center",
+            "width": 100
           }
         }
       },
       "block_order": [
-        "column1",
-        "column2",
-        "column3"
+        "single_image_4UEBiF"
       ],
+      "name": "Single Image",
+      "settings": {}
+    },
+    "custom_liquid_AA9CxB": {
+      "type": "custom-liquid",
+      "name": "t:sections.custom-liquid.presets.name",
       "settings": {
-        "title": "",
-        "heading_size": "h1",
-        "image_width": "third",
-        "image_ratio": "adapt",
-        "columns_desktop": 3,
-        "column_alignment": "center",
-        "background_style": "none",
-        "button_label": "",
-        "button_link": "",
-        "swipe_on_mobile": false,
-        "color_scheme": "scheme-1",
-        "columns_mobile": "1",
-        "padding_top": 36,
-        "padding_bottom": 36
+        "custom_liquid": "",
+        "color_scheme": "",
+        "padding_top": 40,
+        "padding_bottom": 52
       }
     }
   },
   "order": [
     "image_banner",
+    "homepage_image_xcaimJ",
     "rich_text",
     "featured_collection",
-    "collage",
-    "video",
-    "multicolumn"
+    "rich_text_Lqqj4y",
+    "custom_liquid_FD8whE",
+    "one_image_rkiiLE",
+    "custom_liquid_AA9CxB"
   ]
 }

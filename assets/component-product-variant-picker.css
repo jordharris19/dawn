@@ -149,4 +149,24 @@ variant-selects {
     --swatch-input--size: 2.8rem;
   }
 }
+
+.swatch-label {
+  display: block;
+  width: 100px;
+  height: 100px;
+  background-repeat: no-repeat;
+}
 /* End custom styles for Swatch display type */
+
+img.variant-image {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+img.variant-image.active {
+  opacity: 1;
+}
+
+img.variant-image:hover {
+  opacity: 1;
+}

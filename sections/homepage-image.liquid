@@ -1,0 +1,386 @@
+{% comment %}
+  Product Grid Section
+  A responsive grid section with 12 image slots for showcasing products/categories
+{% endcomment %}
+
+{%- liquid
+  assign section_id = 'product-grid-' | append: section.id
+  assign grid_items = section.blocks | size
+  assign grid_class = 'grid-12'
+  
+  case grid_items
+    when 1
+      assign grid_class = 'grid-1'
+    when 2
+      assign grid_class = 'grid-2'
+    when 3
+      assign grid_class = 'grid-3'
+    when 4
+      assign grid_class = 'grid-4'
+    when 6
+      assign grid_class = 'grid-6'
+    when 8
+      assign grid_class = 'grid-8'
+    when 9
+      assign grid_class = 'grid-9'
+    when 12
+      assign grid_class = 'grid-12'
+  endcase
+-%}
+
+<style>
+  .homepage-grid-section {
+    padding: 60px 0;
+    background-color: {{ section.settings.background_color | default: '#ffffff' }};
+  }
+  
+  .homepage-grid-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .homepage-grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(12, 1fr);
+  }
+  
+  .homepage-grid.grid-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  .homepage-grid.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .homepage-grid.grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .homepage-grid.grid-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .homepage-grid.grid-6 {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  
+  .homepage-grid.grid-8 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .homepage-grid.grid-9 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .homepage-grid.grid-12 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .homepage-grid-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #f8f8f8;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    aspect-ratio: 1;
+  }
+  
+  .homepage-grid-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+  
+  .homepage-grid-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .homepage-grid-item:hover .homepage-grid-image {
+    transform: scale(1.05);
+  }
+  
+  .homepage-grid-overlay {
+    position: absolute;
+    color: #fff;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .homepage-grid-overlay .homepage-grid-item-title,
+  .homepage-grid-overlay .homepage-grid-item-subtitle {
+    text-shadow: 0px 2px 6px rgba(0,0,0,0.6);
+  }
+  
+  .homepage-grid-item-title {
+    font-size: 2.4rem;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+  
+  .homepage-grid-item-subtitle {
+    font-size: 1.5rem;
+    opacity: 0.9;
+  }
+  
+  .homepage-grid-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .homepage-grid.grid-12,
+    .homepage-grid.grid-8 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .homepage-grid.grid-6,
+    .homepage-grid.grid-9 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .homepage-grid-section {
+      padding: 40px 0;
+    }
+    
+    .homepage-grid.grid-12,
+    .homepage-grid.grid-8,
+    .homepage-grid.grid-6,
+    .homepage-grid.grid-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .homepage-grid.grid-3,
+    .homepage-grid.grid-9 {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .homepage-grid {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+  }
+</style>
+
+<div class="homepage-grid-section" id="{{ section_id }}">
+  <div class="homepage-grid-container">
+    <div class="homepage-grid {{ grid_class }}">
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'image_item' %}
+            <div class="homepage-grid-item" {{ block.shopify_attributes }}>
+              {% if block.settings.image != blank %}
+                <img 
+                  src="{{ block.settings.image | image_url: width: 400 }}"
+                  alt="{{ block.settings.image.alt | default: block.settings.title }}"
+                  class="homepage-grid-image"
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                >
+              {% else %}
+                <div class="homepage-grid-image" style="background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                  <span style="color: #999; font-size: 0.9rem;">Add Image</span>
+                </div>
+              {% endif %}
+              
+              {% if block.settings.title != blank or block.settings.subtitle != blank %}
+                <div class="homepage-grid-overlay">
+                  {% if block.settings.title != blank %}
+                    <div class="homepage-grid-item-title">{{ block.settings.title }}</div>
+                  {% endif %}
+                  {% if block.settings.subtitle != blank %}
+                    <div class="homepage-grid-item-subtitle">{{ block.settings.subtitle }}</div>
+                  {% endif %}
+                </div>
+              {% endif %}
+              
+              {% if block.settings.link != blank %}
+                <a href="{{ block.settings.link }}" class="homepage-grid-link" aria-label="{{ block.settings.title | default: 'View item' }}">
+                  <span class="visually-hidden">{{ block.settings.title | default: 'View item' }}</span>
+                </a>
+              {% endif %}
+            </div>
+        {% endcase %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Product Grid",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "Discover Our Collections"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Section Subtitle",
+      "default": "Explore our carefully curated selection of furniture and home accessories"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#333333"
+    },
+    {
+      "type": "color",
+      "id": "subtitle_color",
+      "label": "Subtitle Color",
+      "default": "#666666"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image_item",
+      "name": "Image Item",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Product Category"
+        },
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "Subtitle",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Grid",
+      "blocks": [
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Sofas",
+            "subtitle": "Comfort & Style"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Dining Room",
+            "subtitle": "Gather Together"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Bedroom",
+            "subtitle": "Rest & Relax"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Office",
+            "subtitle": "Work Smart"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Chairs",
+            "subtitle": "Seating Solutions"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Sideboards",
+            "subtitle": "Storage & Style"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Coffee Tables",
+            "subtitle": "Center of Attention"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Accessories",
+            "subtitle": "Finishing Touches"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Garden",
+            "subtitle": "Outdoor Living"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Lighting",
+            "subtitle": "Illuminate"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "Storage",
+            "subtitle": "Organize & Display"
+          }
+        },
+        {
+          "type": "image_item",
+          "settings": {
+            "title": "New Arrivals",
+            "subtitle": "Latest Styles"
+          }
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12
+}
+{% endschema %}

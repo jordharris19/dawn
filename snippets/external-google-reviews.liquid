@@ -1,0 +1,200 @@
+<!-- snippets/external-google-reviews.liquid -->
+
+<div class="php-google-reviews-carousel-wrapper">
+  <!-- Carousel container; “Loading…” text while JS populates -->
+  <div id="php-google-reviews-carousel" class="php-google-reviews-carousel">
+    <p class="loading-text">Loading customer reviews…</p>
+  </div>
+
+  <!-- Optional arrows for desktop navigation -->
+  <button class="carousel-nav carousel-prev" aria-label="Previous reviews"><svg viewBox="0 0 24 24" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#B49A60" transform="matrix(1, 0, 0, 1, 0, 0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{display:none;} .st1{display:inline;} .st2{opacity:0.2;fill:none;stroke:#000000;stroke-width:5.000000e-02;stroke-miterlimit:10;} </style> <g class="st0" id="grid_system"></g> <g id="_icons"> <g> <path d="M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M12,20c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8 S16.4,20,12,20z"></path> <path d="M13.7,8.3c-0.4-0.4-1-0.4-1.4,0l-3,3c-0.4,0.4-0.4,1,0,1.4l3,3c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3 c0.4-0.4,0.4-1,0-1.4L11.4,12l2.3-2.3C14.1,9.3,14.1,8.7,13.7,8.3z"></path> </g> </g> </g></svg></button>
+  <button class="carousel-nav carousel-next" aria-label="Next reviews"><svg viewBox="0 0 24 24" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#B49A60" transform="matrix(-1, 0, 0, 1, 0, 0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{display:none;} .st1{display:inline;} .st2{opacity:0.2;fill:none;stroke:#000000;stroke-width:5.000000e-02;stroke-miterlimit:10;} </style> <g class="st0" id="grid_system"></g> <g id="_icons"> <g> <path d="M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M12,20c-4.4,0-8-3.6-8-8s3.6-8,8-8s8,3.6,8,8 S16.4,20,12,20z"></path> <path d="M13.7,8.3c-0.4-0.4-1-0.4-1.4,0l-3,3c-0.4,0.4-0.4,1,0,1.4l3,3c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3 c0.4-0.4,0.4-1,0-1.4L11.4,12l2.3-2.3C14.1,9.3,14.1,8.7,13.7,8.3z"></path> </g> </g> </g></svg></button>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const endpoint = "https://divino.jordangerrard.me/google-reviews.php"; 
+    const carousel = document.getElementById("php-google-reviews-carousel");
+    const prevBtn  = document.querySelector(".carousel-prev");
+    const nextBtn  = document.querySelector(".carousel-next");
+
+    fetch(endpoint)
+      .then(resp => resp.json())
+      .then(json => {
+        if (!json || json.status !== "OK" || !Array.isArray(json.reviews)) {
+          carousel.innerHTML = "<p class='error-text'>Unable to load reviews right now.</p>";
+          console.error("Google Reviews fetch error:", json);
+          return;
+        }
+
+        // Build carousel items
+        carousel.innerHTML = ''; // clear “Loading…” text
+        json.reviews.forEach(review => {
+          const date = new Date(review.time * 1000)
+            .toLocaleDateString("en-GB", {
+              year: "numeric",
+              month: "short",
+              day: "numeric"
+            });
+          const fullStars  = "★".repeat(review.rating);
+          const emptyStars = "☆".repeat(5 - review.rating);
+
+          const slide = document.createElement("div");
+          slide.className = "carousel-item";
+          slide.innerHTML = `
+            <div class="review-card">
+              <div class="review-header">
+                <strong class="review-author">${review.author_name}</strong>
+                <span class="review-rating">${fullStars}${emptyStars}</span>
+              </div>
+              <p class="review-text">${review.text}</p>
+              <small class="review-date">${date}</small>
+            </div>
+          `;
+          carousel.appendChild(slide);
+        });
+
+        // Show nav arrows on desktop only
+        function updateNavVisibility() {
+          const isDesktop = window.innerWidth >= 768;
+          prevBtn.style.display = isDesktop ? "block" : "none";
+          nextBtn.style.display = isDesktop ? "block" : "none";
+        }
+        updateNavVisibility();
+        window.addEventListener("resize", updateNavVisibility);
+
+        // Arrow button functionality for desktop
+        prevBtn.addEventListener("click", () => {
+          carousel.scrollBy({ left: -carousel.clientWidth, behavior: "smooth" });
+        });
+        nextBtn.addEventListener("click", () => {
+          carousel.scrollBy({ left: carousel.clientWidth, behavior: "smooth" });
+        });
+      })
+      .catch(err => {
+        carousel.innerHTML = "<p class='error-text'>Unable to load reviews right now.</p>";
+        console.error("Fetch error:", err);
+      });
+  });
+</script>
+
+<style>
+  /* Wrapper to position arrows */
+  .php-google-reviews-carousel-wrapper {
+    position: relative;
+    margin: 2em 0;
+  }
+
+  /* Carousel container: flex + horizontal scroll + scroll-snap */
+  .php-google-reviews-carousel {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1rem; /* space for scrollbar on desktop */
+  }
+
+  /* Hide default scrollbar (WebKit) */
+  .php-google-reviews-carousel::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Each carousel item */
+  .carousel-item {
+    flex: 0 0 80%; /* on mobile, 1 item visible; ~80% width so next peek shows */
+    scroll-snap-align: start;
+    box-sizing: border-box;
+  }
+
+  /* Review card styling */
+  .review-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .review-author {
+    font-size: 14px;
+  }
+
+  .review-rating {
+    font-size: 14px;
+    color: #f5a623;
+  }
+
+  .review-text {
+    flex-grow: 1;
+    margin: 0.5rem 0;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .review-date {
+    color: #777;
+    font-size: 12px;
+  }
+
+  /* “Loading…” and error styling */
+  .loading-text,
+  .error-text {
+    font-size: 16px;
+    color: #555;
+    padding: 1rem;
+  }
+
+  /* Navigation arrows for desktop */
+  .carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    line-height: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    z-index: 10;
+    display: none; /* shown via JS on desktop */
+  }
+
+  .carousel-nav svg {
+    height: 50px;
+    width: 50px;
+  }
+
+  .carousel-prev {
+    left: 0.5rem;
+  }
+  .carousel-next {
+    right: 0.5rem;
+  }
+
+  /* Desktop: show more items side by side */
+  @media (min-width: 768px) {
+    .carousel-item {
+      flex: 0 0 40%; /* two items side by side with gap */
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .carousel-item {
+      flex: 0 0 30%; /* three items side by side on large screens */
+    }
+  }
+</style>
