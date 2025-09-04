@@ -29,6 +29,15 @@
       }
     },
     "continue_shopping": "Continue shopping",
+    "breadcrumbs": {
+      "home": "Home",
+      "collections": "Collections",
+      "blog": "Blog",
+      "search": "Search",
+      "cart": "Cart",
+      "account": "Account",
+      "order": "Order"
+    },
     "pagination": {
       "label": "Pagination",
       "page": "Page {{ number }}",

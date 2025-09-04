@@ -1,0 +1,124 @@
+{% comment %}
+  Breadcrumb navigation snippet
+  Usage: {% render 'breadcrumb' %}
+{% endcomment %}
+
+{%- unless template == 'index' -%}
+  <nav class="breadcrumb" role="navigation" aria-label="breadcrumbs">
+    <ol class="breadcrumb__list">
+      <li class="breadcrumb__item">
+        <a href="{{ routes.root_url }}" class="breadcrumb__link">
+          {{ 'general.breadcrumbs.home' | t }}
+        </a>
+        <span class="breadcrumb__separator" aria-hidden="true">/</span>
+      </li>
+      
+      {%- case template -%}
+        {%- when 'collection' -%}
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__text">{{ collection.title }}</span>
+          </li>
+          
+        {%- when 'product' -%}
+          {%- assign product_collection = collection -%}
+          {%- unless product_collection -%}
+            {%- assign product_collection = product.collections.first -%}
+          {%- endunless -%}
+          {%- if product_collection -%}
+            <li class="breadcrumb__item">
+              <a href="{{ product_collection.url }}" class="breadcrumb__link">
+                {{ product_collection.title }}
+              </a>
+            </li>
+          {%- endif -%}
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <span class="breadcrumb__text">{{ product.title }}</span>
+          </li>
+          
+        {%- when 'page' -%}
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__text">{{ page.title }}</span>
+          </li>
+          
+        {%- when 'page.contact' -%}
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__text">{{ page.title }}</span>
+          </li>
+          
+        {%- when 'page.about' -%}
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__text">{{ page.title }}</span>
+          </li>
+          
+        {%- when 'blog' -%}
+          <li class="breadcrumb__item">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <a href="{{ routes.blogs_url }}" class="breadcrumb__link">
+              {{ 'general.breadcrumbs.blog' | t }}
+            </a>
+          </li>
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <span class="breadcrumb__text">{{ blog.title }}</span>
+          </li>
+          
+        {%- when 'article' -%}
+          <li class="breadcrumb__item">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <a href="{{ routes.blogs_url }}" class="breadcrumb__link">
+              {{ 'general.breadcrumbs.blog' | t }}
+            </a>
+          </li>
+          <li class="breadcrumb__item">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <a href="{{ blog.url }}" class="breadcrumb__link">
+              {{ blog.title }}
+            </a>
+          </li>
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <span class="breadcrumb__text">{{ article.title }}</span>
+          </li>
+          
+        {%- when 'search' -%}
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <span class="breadcrumb__text">{{ 'general.breadcrumbs.search' | t }}</span>
+          </li>
+          
+        {%- when 'cart' -%}
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <span class="breadcrumb__text">{{ 'general.breadcrumbs.cart' | t }}</span>
+          </li>
+          
+        {%- when 'customers/account' -%}
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <span class="breadcrumb__text">{{ 'general.breadcrumbs.account' | t }}</span>
+          </li>
+          
+        {%- when 'customers/order' -%}
+          <li class="breadcrumb__item">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <a href="{{ routes.account_url }}" class="breadcrumb__link">
+              {{ 'general.breadcrumbs.account' | t }}
+            </a>
+          </li>
+          <li class="breadcrumb__item breadcrumb__item--current">
+            <span class="breadcrumb__separator" aria-hidden="true">/</span>
+            <span class="breadcrumb__text">{{ 'general.breadcrumbs.order' | t }}</span>
+          </li>
+          
+        {%- else -%}
+          {%- comment -%} Fallback for any page templates that start with 'page.' {%- endcomment -%}
+          {%- if template contains 'page' and page -%}
+            <li class="breadcrumb__item breadcrumb__item--current">
+              <span class="breadcrumb__text">{{ page.title }}</span>
+            </li>
+          {%- endif -%}
+      {%- endcase -%}
+    </ol>
+  </nav>
+{%- endunless -%}

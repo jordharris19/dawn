@@ -1,3 +1,10 @@
+:root {
+  --card-min-height: 400px;
+  --card-image-height: 250px;
+  --card-content-padding: 1rem;
+  --card-border-radius: 8px;
+}
+
 .card-wrapper {
   color: inherit;
   height: 100%;
@@ -291,9 +298,10 @@
 
 .card__media .media img {
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center center;
   width: 100%;
+  background-color: #fff;
 }
 
 .card__inner:not(.ratio) > .card__content {
@@ -592,4 +600,71 @@
   .grid__item:nth-child(8n) .product-card-wrapper:hover .shape--blob {
     clip-path: polygon(var(--shape--blob-5));
   }
+}
+
+/* Additional styles for uniform card heights in grid layout */
+.grid__item {
+  display: flex;
+  flex-direction: column;
+}
+
+.grid__item .card-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure product cards maintain consistent dimensions */
+.product-card-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+/* Force all product images to be the same size */
+/* Better approach: Let images be natural height, make cards uniform */
+.grid__item {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.product-card-wrapper .card__media {
+  /* Remove fixed height - let images be natural size */
+  overflow: hidden;
+}
+
+.product-card-wrapper .card__media img {
+  width: 100%;
+  height: auto; /* Let height be natural */
+  display: block;
+}
+
+.product-card-wrapper .card__content {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 120px; /* Ensure content area has minimum height */
+}
+
+/* Clean up content spacing */
+.product-card-wrapper .card__information {
+  padding: 0.5rem 0;
+  margin: 0;
+}
+
+.product-card-wrapper .card__information h3 {
+  margin: 0 0 0.3rem 0;
+  line-height: 1.2;
+}
+
+.product-card-wrapper .price {
+  margin: 0;
+  padding: 0;
 }

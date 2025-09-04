@@ -28,6 +28,8 @@
 
     {% render 'meta-tags' %}
 
+    {{ 'component-breadcrumb.css' | asset_url | stylesheet_tag }}
+
     <script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
     <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
@@ -310,6 +312,11 @@
     {% sections 'header-group' %}
 
     <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
+      {% unless template == 'index' %}
+        <div class="page-width">
+          {% render 'breadcrumb' %}
+        </div>
+      {% endunless %}
       {{ content_for_layout }}
     </main>
 
