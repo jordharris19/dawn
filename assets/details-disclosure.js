@@ -36,6 +36,41 @@ class HeaderMenu extends DetailsDisclosure {
   constructor() {
     super();
     this.header = document.querySelector('.header-wrapper');
+    this.addHoverSupport();
+  }
+
+  addHoverSupport() {
+    const summary = this.mainDetailsToggle.querySelector('summary');
+    const content = this.mainDetailsToggle.querySelector('.mega-menu__content');
+
+    if (!summary || !content) return;
+
+    // Add hover to open
+    summary.addEventListener('mouseenter', () => {
+      // Close all other mega menus first
+      this.closeAllOtherMenus();
+      // Then open this one
+      this.mainDetailsToggle.setAttribute('open', '');
+    });
+
+    // Keep menu open when hovering over dropdown content
+    content.addEventListener('mouseenter', () => {
+      // Keep it open
+    });
+
+    content.addEventListener('mouseleave', () => {
+      this.close();
+    });
+  }
+
+  closeAllOtherMenus() {
+    // Find all other mega menu details elements
+    const allMegaMenus = document.querySelectorAll('details.mega-menu');
+    allMegaMenus.forEach((menu) => {
+      if (menu !== this.mainDetailsToggle && menu.hasAttribute('open')) {
+        menu.removeAttribute('open');
+      }
+    });
   }
 
   onToggle() {
@@ -45,7 +80,7 @@ class HeaderMenu extends DetailsDisclosure {
     if (document.documentElement.style.getPropertyValue('--header-bottom-position-desktop') !== '') return;
     document.documentElement.style.setProperty(
       '--header-bottom-position-desktop',
-      `${Math.floor(this.header.getBoundingClientRect().bottom)}px`
+      `${Math.floor(this.header.getBoundingClientRect().bottom)}px`,
     );
   }
 }

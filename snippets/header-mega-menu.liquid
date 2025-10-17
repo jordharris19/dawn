@@ -89,9 +89,12 @@
                               {%- endif -%}
                               {{ block.settings.image_1 | image_url: width: 300 | image_tag:
                                 class: 'mega-menu__image',
-                                alt: block.settings.image_1.alt | default: 'Mega menu image 1',
+                                alt: block.settings.image_1_text | default: block.settings.image_1.alt | default: 'Mega menu image 1',
                                 loading: 'lazy'
                               }}
+                              {%- if block.settings.image_1_text != blank -%}
+                                <div class="mega-menu__image-text">{{ block.settings.image_1_text }}</div>
+                              {%- endif -%}
                               {%- if block.settings.image_1_link != blank -%}
                                 </a>
                               {%- endif -%}
@@ -105,9 +108,12 @@
                               {%- endif -%}
                               {{ block.settings.image_2 | image_url: width: 300 | image_tag:
                                 class: 'mega-menu__image',
-                                alt: block.settings.image_2.alt | default: 'Mega menu image 2',
+                                alt: block.settings.image_2_text | default: block.settings.image_2.alt | default: 'Mega menu image 2',
                                 loading: 'lazy'
                               }}
+                              {%- if block.settings.image_2_text != blank -%}
+                                <div class="mega-menu__image-text">{{ block.settings.image_2_text }}</div>
+                              {%- endif -%}
                               {%- if block.settings.image_2_link != blank -%}
                                 </a>
                               {%- endif -%}
@@ -121,9 +127,12 @@
                               {%- endif -%}
                               {{ block.settings.image_3 | image_url: width: 300 | image_tag:
                                 class: 'mega-menu__image',
-                                alt: block.settings.image_3.alt | default: 'Mega menu image 3',
+                                alt: block.settings.image_3_text | default: block.settings.image_3.alt | default: 'Mega menu image 3',
                                 loading: 'lazy'
                               }}
+                              {%- if block.settings.image_3_text != blank -%}
+                                <div class="mega-menu__image-text">{{ block.settings.image_3_text }}</div>
+                              {%- endif -%}
                               {%- if block.settings.image_3_link != blank -%}
                                 </a>
                               {%- endif -%}

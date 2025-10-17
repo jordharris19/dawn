@@ -5,27 +5,6 @@
 
 {%- liquid
   assign section_id = 'product-grid-' | append: section.id
-  assign grid_items = section.blocks | size
-  assign grid_class = 'grid-12'
-  
-  case grid_items
-    when 1
-      assign grid_class = 'grid-1'
-    when 2
-      assign grid_class = 'grid-2'
-    when 3
-      assign grid_class = 'grid-3'
-    when 4
-      assign grid_class = 'grid-4'
-    when 6
-      assign grid_class = 'grid-6'
-    when 8
-      assign grid_class = 'grid-8'
-    when 9
-      assign grid_class = 'grid-9'
-    when 12
-      assign grid_class = 'grid-12'
-  endcase
 -%}
 
 <style>
@@ -43,39 +22,7 @@
   .homepage-grid {
     display: grid;
     gap: 20px;
-    grid-template-columns: repeat(12, 1fr);
-  }
-  
-  .homepage-grid.grid-1 {
-    grid-template-columns: 1fr;
-  }
-  
-  .homepage-grid.grid-2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .homepage-grid.grid-3 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  .homepage-grid.grid-4 {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  
-  .homepage-grid.grid-6 {
-    grid-template-columns: repeat(6, 1fr);
-  }
-  
-  .homepage-grid.grid-8 {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  
-  .homepage-grid.grid-9 {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  .homepage-grid.grid-12 {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat({{ section.settings.columns_desktop | default: 4 }}, 1fr);
   }
   
   .homepage-grid-item {
@@ -86,6 +33,33 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     aspect-ratio: 1;
   }
+  
+  /* Wide item spans 2 columns - ALWAYS take priority */
+  .homepage-grid-item.wide {
+    grid-column: span 2 !important;
+    aspect-ratio: 2 / 1 !important;
+  }
+  
+  /* Auto-expand last items to fill row in 4-column layout */
+  {% if section.settings.columns_desktop == '4' %}
+    /* If last 2 items are in a partial row (positions 3-4 of a 4-column grid) */
+    .homepage-grid-item:nth-child(4n + 3):nth-last-child(2):not(.wide) {
+      grid-column: span 2;
+      aspect-ratio: 2 / 1;
+    }
+    .homepage-grid-item:nth-child(4n):nth-last-child(1):not(.wide) {
+      grid-column: span 2;
+      aspect-ratio: 2 / 1;
+    }
+    
+    /* If last item is alone in row */
+    .homepage-grid-item:nth-child(4n + 1):last-child:not(.wide),
+    .homepage-grid-item:nth-child(4n + 2):last-child:not(.wide),
+    .homepage-grid-item:nth-child(4n + 3):last-child:not(.wide) {
+      grid-column: span 2;
+      aspect-ratio: 2 / 1;
+    }
+  {% endif %}
   
   .homepage-grid-item:hover {
     transform: translateY(-5px);
@@ -141,14 +115,8 @@
   
   /* Responsive Design */
   @media (max-width: 1024px) {
-    .homepage-grid.grid-12,
-    .homepage-grid.grid-8 {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .homepage-grid.grid-6,
-    .homepage-grid.grid-9 {
-      grid-template-columns: repeat(2, 1fr);
+    .homepage-grid {
+      grid-template-columns: repeat({% if section.settings.columns_desktop >= 4 %}3{% else %}2{% endif %}, 1fr);
     }
   }
   
@@ -157,16 +125,8 @@
       padding: 40px 0;
     }
     
-    .homepage-grid.grid-12,
-    .homepage-grid.grid-8,
-    .homepage-grid.grid-6,
-    .homepage-grid.grid-4 {
+    .homepage-grid {
       grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .homepage-grid.grid-3,
-    .homepage-grid.grid-9 {
-      grid-template-columns: 1fr;
     }
   }
   
@@ -175,25 +135,57 @@
       grid-template-columns: 1fr;
       gap: 15px;
     }
+    
+    /* Wide items still span full width on mobile */
+    .homepage-grid-item.wide {
+      grid-column: span 1;
+      aspect-ratio: 2 / 1;
+    }
   }
 </style>
 
 <div class="homepage-grid-section" id="{{ section_id }}">
   <div class="homepage-grid-container">
-    <div class="homepage-grid {{ grid_class }}">
+    <div class="homepage-grid">
       {% for block in section.blocks %}
         {% case block.type %}
           {% when 'image_item' %}
-            <div class="homepage-grid-item" {{ block.shopify_attributes }}>
+            {%- liquid
+              # Auto-detect if image should be wide based on aspect ratio
+              # Priority: checkbox setting OR aspect ratio > 1.5
+              assign is_wide = false
+              
+              if block.settings.wide == true
+                assign is_wide = true
+              elsif block.settings.image != blank
+                assign image_aspect = block.settings.image.aspect_ratio
+                # If aspect ratio is greater than 1.5 (landscape), automatically make it wide
+                if image_aspect > 1.5
+                  assign is_wide = true
+                endif
+              endif
+            -%}
+            <div class="homepage-grid-item{% if is_wide %} wide{% endif %}" {{ block.shopify_attributes }}>
               {% if block.settings.image != blank %}
-                <img 
-                  src="{{ block.settings.image | image_url: width: 400 }}"
-                  alt="{{ block.settings.image.alt | default: block.settings.title }}"
-                  class="homepage-grid-image"
-                  loading="lazy"
-                  width="400"
-                  height="400"
-                >
+                {% if is_wide %}
+                  <img 
+                    src="{{ block.settings.image | image_url: width: 800 }}"
+                    alt="{{ block.settings.image.alt | default: block.settings.title }}"
+                    class="homepage-grid-image"
+                    loading="lazy"
+                    width="800"
+                    height="400"
+                  >
+                {% else %}
+                  <img 
+                    src="{{ block.settings.image | image_url: width: 400 }}"
+                    alt="{{ block.settings.image.alt | default: block.settings.title }}"
+                    class="homepage-grid-image"
+                    loading="lazy"
+                    width="400"
+                    height="400"
+                  >
+                {% endif %}
               {% else %}
                 <div class="homepage-grid-image" style="background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
                   <span style="color: #999; font-size: 0.9rem;">Add Image</span>
@@ -229,6 +221,35 @@
   "tag": "section",
   "class": "section",
   "settings": [
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Number of Columns (Desktop)",
+      "options": [
+        {
+          "value": "2",
+          "label": "2 Columns"
+        },
+        {
+          "value": "3",
+          "label": "3 Columns"
+        },
+        {
+          "value": "4",
+          "label": "4 Columns"
+        },
+        {
+          "value": "5",
+          "label": "5 Columns"
+        },
+        {
+          "value": "6",
+          "label": "6 Columns"
+        }
+      ],
+      "default": "4",
+      "info": "Choose how many images to display per row on desktop"
+    },
     {
       "type": "text",
       "id": "title",
@@ -269,6 +290,13 @@
           "type": "image_picker",
           "id": "image",
           "label": "Image"
+        },
+        {
+          "type": "checkbox",
+          "id": "wide",
+          "label": "Force Wide (2 columns)",
+          "default": false,
+          "info": "Force this image to span 2 columns. Note: Landscape images (wider than 1.5x height) are automatically wide, even if this box is unchecked."
         },
         {
           "type": "text",
@@ -381,6 +409,6 @@
       ]
     }
   ],
-  "max_blocks": 12
+  "max_blocks": 24
 }
 {% endschema %}

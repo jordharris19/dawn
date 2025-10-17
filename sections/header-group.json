@@ -17,14 +17,14 @@
         "announcement-bar-0": {
           "type": "announcement",
           "settings": {
-            "text": "FREE DELIVERY ON ORDERS OVER £300",
+            "text": "FREE DELIVERY ON ORDERS OVER £500",
             "link": ""
           }
         },
         "announcement_eynqxd": {
           "type": "announcement",
           "settings": {
-            "text": "FINANCE OPTIONS AVAILABLE",
+            "text": "0% INTEREST FREE FINANCE OPTIONS AVAILABLE",
             "link": ""
           }
         }
@@ -34,8 +34,8 @@
         "announcement_eynqxd"
       ],
       "settings": {
-        "auto_rotate": false,
-        "change_slides_speed": 5,
+        "auto_rotate": true,
+        "change_slides_speed": 3,
         "color_scheme": "",
         "show_line_separator": true,
         "show_social": false,
@@ -51,8 +51,11 @@
           "settings": {
             "menu_handle": "tables",
             "image_1": "shopify://shop_images/b06144da8b1bfa68b84e69f17f98c108.webp",
+            "image_1_text": "",
             "image_1_link": "",
+            "image_2_text": "",
             "image_2_link": "",
+            "image_3_text": "",
             "image_3_link": ""
           }
         },
@@ -61,9 +64,12 @@
           "settings": {
             "menu_handle": "chairs",
             "image_1": "shopify://shop_images/2a93d2e964a63491f12f95bb56988f3d.webp",
+            "image_1_text": "",
             "image_1_link": "",
             "image_2": "shopify://shop_images/8e312574cdfb78f36dc41aedbb4d161c.webp",
+            "image_2_text": "",
             "image_2_link": "",
+            "image_3_text": "",
             "image_3_link": ""
           }
         }

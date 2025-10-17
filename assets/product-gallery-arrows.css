@@ -1,0 +1,130 @@
+/* Product Gallery - Always Show Navigation Arrows */
+
+/* Force arrows to be visible on desktop */
+@media screen and (min-width: 750px) {
+  .product__media-wrapper .slider-buttons {
+    display: flex !important;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 2;
+    padding: 0 1rem;
+  }
+
+  .product__media-wrapper .slider-buttons.quick-add-hidden {
+    display: flex !important;
+  }
+
+  .product__media-wrapper .slider-button {
+    pointer-events: all !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: pointer !important;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 3;
+  }
+
+  .product__media-wrapper .slider-button:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05);
+  }
+
+  .product__media-wrapper .slider-button svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .product__media-wrapper .slider-button--prev svg {
+    transform: rotate(90deg);
+  }
+
+  .product__media-wrapper .slider-button--next svg {
+    transform: rotate(-90deg);
+  }
+  
+  /* Prevent rotation on hover */
+  .product__media-wrapper .slider-button:hover svg {
+    transform: none;
+  }
+  
+  .product__media-wrapper .slider-button--prev:hover svg {
+    transform: rotate(90deg);
+  }
+
+  .product__media-wrapper .slider-button--next:hover svg {
+    transform: rotate(-90deg);
+  }
+
+  /* Hide the counter, keep only arrows */
+  .product__media-wrapper .slider-counter {
+    display: none;
+  }
+}
+
+/* Thumbnail slider arrows - FORCE them to be clickable */
+.thumbnail-slider .slider-button {
+  pointer-events: all !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  opacity: 1 !important;
+  display: flex !important;
+  visibility: visible !important;
+}
+
+.thumbnail-slider .slider-buttons {
+  pointer-events: none !important;
+  z-index: 10 !important;
+}
+
+/* Override disabled state */
+.thumbnail-slider .slider-button[disabled] {
+  pointer-events: all !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+/* Remove any not-allowed cursor */
+.thumbnail-slider .slider-button:not([disabled]) {
+  cursor: pointer !important;
+}
+
+.thumbnail-slider * {
+  cursor: default !important;
+}
+
+/* Active thumbnail styling */
+.thumbnail.active-thumbnail,
+.thumbnail[aria-current="true"] {
+  border: 2px solid rgb(var(--color-foreground)) !important;
+  opacity: 1 !important;
+}
+
+.thumbnail:not(.active-thumbnail):not([aria-current="true"]) {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.thumbnail:hover {
+  opacity: 1 !important;
+}
+
+/* Mobile - keep default behavior */
+@media screen and (max-width: 749px) {
+  .product__media-wrapper .slider-buttons {
+    /* Mobile uses default Dawn styling */
+  }
+}
+

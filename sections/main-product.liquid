@@ -15,6 +15,9 @@
   {{ 'component-slider.css' | asset_url | stylesheet_tag }}
   {{ 'component-rating.css' | asset_url | stylesheet_tag }}
   {{ 'component-deferred-media.css' | asset_url | stylesheet_tag }}
+  {{ 'product-gallery-arrows.css' | asset_url | stylesheet_tag }}
+  
+  <script src="{{ 'product-gallery-arrows.js' | asset_url }}" defer="defer"></script>
 
   {% unless product.has_only_default_variant %}
     {{ 'component-product-variant-picker.css' | asset_url | stylesheet_tag }}
@@ -110,7 +113,7 @@
                  <div class="variant-image-container">
                   {% for variant in product.variants %}
                     {% if variant.image %}
-                      <img src="{{ variant.image.src | img_url: 'small' }}" alt="{{ variant.title }}" class="variant-image{% if variant.id == product.selected_or_first_available_variant.id %} active{% endif %}" data-variant-id="{{ variant.id }}" data-variant-url="{{ variant.url }}" data-large="{{ variant.image | img_url: '300x300' }}"  />
+                      <img src="{{ variant.image.src | img_url: 'small' }}" alt="{{ variant.title }}" class="variant-image{% if variant.id == product.selected_or_first_available_variant.id %} active{% endif %}" data-variant-id="{{ variant.id }}" data-large="{{ variant.image | img_url: '300x300' }}"  />
                     {% endif %}
                   {% endfor %}
                 </div>
@@ -153,8 +156,14 @@ function getFullSizeImageUrl(src) {
 }
 
 function updateMainImageWithVariant(variantImgSrc) {
-  const mainImage = document.querySelector('.product__media img');
-  if (!mainImage) return;
+  // Always target the FIRST slide (main variant image), not the currently visible slide
+  const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
+  const mainImage = firstSlide ? firstSlide.querySelector('img') : document.querySelector('.product__media-wrapper img');
+  
+  if (!mainImage) {
+    console.warn('No main image found');
+    return;
+  }
 
   const baseUrl = getFullSizeImageUrl(variantImgSrc).split('?')[0];
 
@@ -165,31 +174,143 @@ function updateMainImageWithVariant(variantImgSrc) {
   const widths = [246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946];
   const srcset = widths.map(w => `${baseUrl}?width=${w}${query} ${w}w`).join(', ');
 
-  mainImage.src = `${baseUrl}?width=1946${query}`;
-  mainImage.srcset = srcset;
-  mainImage.setAttribute('data-original-src', `${baseUrl}?width=1946${query}`);
+  // Create a temporary image to get natural dimensions
+  const tempImg = new Image();
+  tempImg.onload = function() {
+    const aspectRatio = tempImg.naturalWidth / tempImg.naturalHeight;
+    
+    // Update the main image
+    mainImage.src = `${baseUrl}?width=1946${query}`;
+    mainImage.srcset = srcset;
+    mainImage.setAttribute('data-original-src', `${baseUrl}?width=1946${query}`);
+    
+    // Reset image attributes
+    mainImage.removeAttribute('width');
+    mainImage.removeAttribute('height');
+    mainImage.style.width = '100%';
+    mainImage.style.height = 'auto';
+    mainImage.style.objectFit = 'contain';
+    
+    // Update container aspect ratio
+    let parent = mainImage.parentElement;
+    while (parent && !parent.classList.contains('product__media-wrapper')) {
+      // Remove old padding-bottom
+      parent.style.paddingBottom = '';
+      
+      // Set new aspect ratio if container uses it
+      if (parent.classList.contains('media') || parent.classList.contains('product__media-container')) {
+        const container = parent;
+        container.style.setProperty('--ratio', aspectRatio.toString());
+        container.style.setProperty('--preview-ratio', aspectRatio.toString());
+        container.style.aspectRatio = aspectRatio.toString();
+        container.style.height = 'auto';
+      }
+      
+      parent = parent.parentElement;
+    }
+  };
+  
+  // Load the image to get dimensions
+  tempImg.src = `${baseUrl}?width=300${query}`;
 }
+
+// Track the currently selected variant image (full size URL)
+let currentVariantImageSrc = null;
 
 document.querySelectorAll('.variant-image').forEach(thumb => {
   const variantId = thumb.dataset.variantId;
+  
+  // Set initial current variant image from active variant (use large version from data attribute)
+  if (thumb.classList.contains('active')) {
+    currentVariantImageSrc = thumb.dataset.large || thumb.src;
+  }
 
   // Hover to update image
   thumb.addEventListener('mouseenter', () => {
+    // Always target the FIRST slide (main variant image), not the active slide
+    const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
+    const mainImage = firstSlide ? firstSlide.querySelector('img') : document.querySelector('.product__media-wrapper img');
+    
+    if (!mainImage) return;
+      
+    // Always update currentVariantImageSrc from the currently active variant image before hover
+    const activeVariant = document.querySelector('.variant-image.active');
+    if (activeVariant) {
+      currentVariantImageSrc = activeVariant.dataset.large || activeVariant.src;
+      console.log('Updated current variant from active:', currentVariantImageSrc);
+    }
+    
+    // Store which slide was active before hover
+    if (!mainImage.dataset.wasActive) {
+      const activeSlide = document.querySelector('.product__media-wrapper .slider__slide.is-active');
+      if (activeSlide && activeSlide !== firstSlide) {
+        mainImage.dataset.wasActive = 'false';
+      } else {
+        mainImage.dataset.wasActive = 'true';
+      }
+    }
+    
     updateMainImageWithVariant(thumb.src);
+    
+    console.log('Main image src after:', mainImage?.src);
   });
 
   thumb.addEventListener('mouseleave', () => {
-    const mainImage = document.querySelector('.product__media img');
-    if (mainImage && mainImage.dataset.originalSrc) {
-      updateMainImageWithVariant(mainImage.dataset.originalSrc);
+    console.log('Hover leave - restoring to:', currentVariantImageSrc);
+    
+    // Restore to the currently selected variant's image
+    if (currentVariantImageSrc) {
+      updateMainImageWithVariant(currentVariantImageSrc);
+    } else {
+      const mainImage = document.querySelector('.product__media img');
+      if (mainImage && mainImage.dataset.originalSrc) {
+        updateMainImageWithVariant(mainImage.dataset.originalSrc);
+      }
     }
+    
+    const mainImage = document.querySelector('.product__media img');
+    console.log('Main image src after restore:', mainImage?.src);
   });
 
-  // Click to go to variant URL
-  thumb.addEventListener('click', () => {
+  // Click to change variant without page refresh
+  thumb.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!variantId) return;
-    const baseUrl = window.location.href.split('?')[0]; // current product URL
-    window.location.href = `${baseUrl}?variant=${variantId}`;
+    
+    // Update the current variant image source for hover restore (use large version)
+    currentVariantImageSrc = thumb.dataset.large || thumb.src;
+    console.log('Clicked variant - updated current variant src to:', currentVariantImageSrc);
+    
+    // Find the product form's variant ID input
+    const variantIdInput = document.querySelector('input[name="id"][type="radio"][value="' + variantId + '"]');
+    
+    if (variantIdInput) {
+      variantIdInput.checked = true;
+      variantIdInput.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      // Try select dropdown for variant ID
+      const variantSelect = document.querySelector('select[name="id"]');
+      if (variantSelect) {
+        variantSelect.value = variantId;
+        variantSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      } else {
+        console.warn('No variant selector found for variant ID:', variantId);
+      }
+    }
+    
+    // Update active state
+    document.querySelectorAll('.variant-image').forEach(img => img.classList.remove('active'));
+    thumb.classList.add('active');
+    
+    // Update variant selected display
+    const variantSelectedDisplay = document.querySelector('.variant-selected');
+    if (variantSelectedDisplay) {
+      variantSelectedDisplay.textContent = thumb.alt;
+    }
+    
+    return false;
   });
 });
 

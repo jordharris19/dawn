@@ -45,9 +45,10 @@
       ],
       "settings": {
         "image": "shopify://shop_images/Screenshot2024-01-03110339_1024x1024_2x_54cba72e-045f-4188-9496-6fc8e02f2f72.webp",
-        "image_overlay_opacity": 40,
-        "image_height": "large",
-        "image_behavior": "none",
+        "image_2": "shopify://shop_images/Natural-Addis-in-Living-Room-copy-1000x667_jpg_9175ba54-a1dc-449c-89ee-c6860a8d6972.webp",
+        "image_overlay_opacity": 30,
+        "image_height": "medium",
+        "image_behavior": "ambient",
         "desktop_content_position": "bottom-center",
         "desktop_content_alignment": "center",
         "show_text_box": false,
@@ -60,12 +61,49 @@
     "homepage_image_xcaimJ": {
       "type": "homepage-image",
       "blocks": {
+        "image_item_9LKbNz": {
+          "type": "image_item",
+          "settings": {
+            "wide": false,
+            "title": "New Arrivals",
+            "subtitle": "Latest Styles",
+            "link": ""
+          }
+        },
+        "image_item_aMTafE": {
+          "type": "image_item",
+          "settings": {
+            "wide": false,
+            "title": "Lighting",
+            "subtitle": "Illuminate",
+            "link": ""
+          }
+        },
+        "image_item_cLTJDt": {
+          "type": "image_item",
+          "settings": {
+            "wide": false,
+            "title": "Garden",
+            "subtitle": "Outdoor Living",
+            "link": ""
+          }
+        },
         "image_item_CRxMAf": {
           "type": "image_item",
           "settings": {
             "image": "shopify://shop_images/3fad78a92524ab6a4114faedbc73f32c.webp",
+            "wide": false,
             "title": "Sofas",
             "subtitle": "Comfort & Style",
+            "link": ""
+          }
+        },
+        "image_item_rFrKTt": {
+          "type": "image_item",
+          "settings": {
+            "wide": false,
+            "title": "Storage",
+            "subtitle": "Organize & Display",
             "link": ""
           }
         },
@@ -73,6 +111,7 @@
           "type": "image_item",
           "settings": {
             "image": "shopify://shop_images/46a05f7dd414b029adfb3c7686955c2b.webp",
+            "wide": false,
             "title": "Dining Room",
             "subtitle": "Gather Together",
             "link": ""
@@ -82,8 +121,19 @@
           "type": "image_item",
           "settings": {
             "image": "shopify://shop_images/057b9696f2665625b85d0e613a62ebb3.webp",
+            "wide": false,
             "title": "Bedroom",
             "subtitle": "Rest & Relax",
+            "link": ""
+          }
+        },
+        "image_item_XcXPMA": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/b70ab2e56e44872a90f0ff724f791d0f.webp",
+            "wide": true,
+            "title": "Coffee Tables",
+            "subtitle": "Center of Attention",
             "link": ""
           }
         },
@@ -91,6 +141,7 @@
           "type": "image_item",
           "settings": {
             "image": "shopify://shop_images/30b3afc23b1c8d3f5a0ad07860eab5a0.webp",
+            "wide": false,
             "title": "Office",
             "subtitle": "Work Smart",
             "link": ""
@@ -100,6 +151,7 @@
           "type": "image_item",
           "settings": {
             "image": "shopify://shop_images/f629048d71e1b4b4b6534c2341df68ad.webp",
+            "wide": false,
             "title": "Chairs",
             "subtitle": "Seating Solutions",
             "link": ""
@@ -109,77 +161,39 @@
           "type": "image_item",
           "settings": {
             "image": "shopify://shop_images/d2fb2b9d921c19909f8b0f40f3da6374.webp",
+            "wide": false,
             "title": "Sideboards",
             "subtitle": "Storage & Style",
-            "link": ""
-          }
-        },
-        "image_item_XcXPMA": {
-          "type": "image_item",
-          "settings": {
-            "image": "shopify://shop_images/b70ab2e56e44872a90f0ff724f791d0f.webp",
-            "title": "Coffee Tables",
-            "subtitle": "Center of Attention",
             "link": ""
           }
         },
         "image_item_gEQzG4": {
           "type": "image_item",
           "settings": {
+            "wide": false,
             "title": "Accessories",
             "subtitle": "Finishing Touches",
-            "link": ""
-          }
-        },
-        "image_item_cLTJDt": {
-          "type": "image_item",
-          "settings": {
-            "title": "Garden",
-            "subtitle": "Outdoor Living",
-            "link": ""
-          }
-        },
-        "image_item_aMTafE": {
-          "type": "image_item",
-          "settings": {
-            "title": "Lighting",
-            "subtitle": "Illuminate",
-            "link": ""
-          }
-        },
-        "image_item_rFrKTt": {
-          "type": "image_item",
-          "settings": {
-            "title": "Storage",
-            "subtitle": "Organize & Display",
-            "link": ""
-          }
-        },
-        "image_item_9LKbNz": {
-          "type": "image_item",
-          "settings": {
-            "title": "New Arrivals",
-            "subtitle": "Latest Styles",
             "link": ""
           }
         }
       },
       "block_order": [
+        "image_item_9LKbNz",
+        "image_item_aMTafE",
+        "image_item_cLTJDt",
         "image_item_CRxMAf",
+        "image_item_rFrKTt",
         "image_item_KcdKzA",
         "image_item_HJyVaM",
+        "image_item_XcXPMA",
         "image_item_JBdJ6A",
         "image_item_YGzVqQ",
         "image_item_WzRnYt",
-        "image_item_XcXPMA",
-        "image_item_gEQzG4",
-        "image_item_cLTJDt",
-        "image_item_aMTafE",
-        "image_item_rFrKTt",
-        "image_item_9LKbNz"
+        "image_item_gEQzG4"
       ],
       "name": "Product Grid",
       "settings": {
+        "columns_desktop": "4",
         "title": "Discover Our Collections",
         "subtitle": "Explore our carefully curated selection of furniture and home accessories",
         "background_color": "#ffffff",
@@ -296,16 +310,6 @@
       ],
       "name": "Single Image",
       "settings": {}
-    },
-    "custom_liquid_AA9CxB": {
-      "type": "custom-liquid",
-      "name": "t:sections.custom-liquid.presets.name",
-      "settings": {
-        "custom_liquid": "",
-        "color_scheme": "",
-        "padding_top": 40,
-        "padding_bottom": 52
-      }
     }
   },
   "order": [
@@ -315,7 +319,6 @@
     "featured_collection",
     "rich_text_Lqqj4y",
     "custom_liquid_FD8whE",
-    "one_image_rkiiLE",
-    "custom_liquid_AA9CxB"
+    "one_image_rkiiLE"
   ]
 }
