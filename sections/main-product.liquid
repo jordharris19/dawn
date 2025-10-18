@@ -155,6 +155,68 @@ function getFullSizeImageUrl(src) {
   return src.replace(/_(small|medium|large|\d+x\d+)(?=\.\w{3,4})/, '');
 }
 
+// Track if we've already adjusted the container
+let containerAdjusted = false;
+
+// Function to apply flexible image styles (defined first so other functions can use it)
+function applyFlexibleImageStyles() {
+  const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
+  const mainImage = firstSlide ? firstSlide.querySelector('img') : document.querySelector('.product__media-wrapper img');
+  
+  if (!mainImage) return;
+  
+  console.log('Applying flexible styles - current width/height:', mainImage.width, mainImage.height);
+  
+  // Reset image attributes that Shopify might add
+  mainImage.removeAttribute('width');
+  mainImage.removeAttribute('height');
+  
+  // Force image to be flexible
+  mainImage.style.width = '100%';
+  mainImage.style.height = 'auto';
+  mainImage.style.maxWidth = '100%';
+  mainImage.style.objectFit = 'contain';
+  mainImage.style.display = 'block';
+  
+  // On first hover, make the container height flexible instead of fixed aspect ratio
+  if (!containerAdjusted) {
+    let parent = mainImage.parentElement;
+    let depth = 0;
+    while (parent && !parent.classList.contains('product__media-wrapper') && depth < 10) {
+      const classes = parent.className || '';
+      
+      // For the .media wrapper with padding-top aspect ratio, make it flexible height
+      if (parent.classList && parent.classList.contains('media')) {
+        // Remove the aspect ratio constraint by clearing padding-top
+        // and setting explicit height to auto
+        parent.style.paddingTop = '0';
+        parent.style.height = 'auto';
+        parent.style.minHeight = '0';
+        
+        // Position the image normally instead of absolutely
+        mainImage.style.position = 'relative';
+        mainImage.style.top = 'auto';
+        mainImage.style.left = 'auto';
+        
+        console.log('→ Made .media container flexible height');
+      }
+      
+      // Make sure product-media-container doesn't constrain height either
+      if (parent.classList && parent.classList.contains('product-media-container')) {
+        parent.style.height = 'auto';
+        parent.style.minHeight = '0';
+        console.log('→ Made .product-media-container flexible height');
+        containerAdjusted = true;
+      }
+      
+      parent = parent.parentElement;
+      depth++;
+    }
+  }
+  
+  console.log('Flexible styles applied, containerAdjusted:', containerAdjusted);
+}
+
 function updateMainImageWithVariant(variantImgSrc) {
   // Always target the FIRST slide (main variant image), not the currently visible slide
   const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
@@ -174,44 +236,13 @@ function updateMainImageWithVariant(variantImgSrc) {
   const widths = [246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946];
   const srcset = widths.map(w => `${baseUrl}?width=${w}${query} ${w}w`).join(', ');
 
-  // Create a temporary image to get natural dimensions
-  const tempImg = new Image();
-  tempImg.onload = function() {
-    const aspectRatio = tempImg.naturalWidth / tempImg.naturalHeight;
-    
-    // Update the main image
-    mainImage.src = `${baseUrl}?width=1946${query}`;
-    mainImage.srcset = srcset;
-    mainImage.setAttribute('data-original-src', `${baseUrl}?width=1946${query}`);
-    
-    // Reset image attributes
-    mainImage.removeAttribute('width');
-    mainImage.removeAttribute('height');
-    mainImage.style.width = '100%';
-    mainImage.style.height = 'auto';
-    mainImage.style.objectFit = 'contain';
-    
-    // Update container aspect ratio
-    let parent = mainImage.parentElement;
-    while (parent && !parent.classList.contains('product__media-wrapper')) {
-      // Remove old padding-bottom
-      parent.style.paddingBottom = '';
-      
-      // Set new aspect ratio if container uses it
-      if (parent.classList.contains('media') || parent.classList.contains('product__media-container')) {
-        const container = parent;
-        container.style.setProperty('--ratio', aspectRatio.toString());
-        container.style.setProperty('--preview-ratio', aspectRatio.toString());
-        container.style.aspectRatio = aspectRatio.toString();
-        container.style.height = 'auto';
-      }
-      
-      parent = parent.parentElement;
-    }
-  };
+  // Update the main image
+  mainImage.src = `${baseUrl}?width=1946${query}`;
+  mainImage.srcset = srcset;
+  mainImage.setAttribute('data-original-src', `${baseUrl}?width=1946${query}`);
   
-  // Load the image to get dimensions
-  tempImg.src = `${baseUrl}?width=300${query}`;
+  // ALWAYS apply flexible styles immediately
+  applyFlexibleImageStyles();
 }
 
 // Track the currently selected variant image (full size URL)
@@ -283,20 +314,38 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
     currentVariantImageSrc = thumb.dataset.large || thumb.src;
     console.log('Clicked variant - updated current variant src to:', currentVariantImageSrc);
     
-    // Find the product form's variant ID input
-    const variantIdInput = document.querySelector('input[name="id"][type="radio"][value="' + variantId + '"]');
-    
-    if (variantIdInput) {
-      variantIdInput.checked = true;
-      variantIdInput.dispatchEvent(new Event('change', { bubbles: true }));
-    } else {
-      // Try select dropdown for variant ID
-      const variantSelect = document.querySelector('select[name="id"]');
-      if (variantSelect) {
-        variantSelect.value = variantId;
-        variantSelect.dispatchEvent(new Event('change', { bubbles: true }));
-      } else {
-        console.warn('No variant selector found for variant ID:', variantId);
+    // Find the variant data from the product JSON
+    const productData = document.querySelector('[data-product-json]');
+    if (productData) {
+      const product = JSON.parse(productData.textContent);
+      const selectedVariant = product.variants.find(v => v.id == variantId);
+      
+      if (selectedVariant) {
+        console.log('Selected variant:', selectedVariant);
+        
+        // Update each option selector (e.g., Color, Size, etc.)
+        selectedVariant.options.forEach((optionValue, index) => {
+          const optionPosition = index + 1; // Shopify uses 1-based indexing
+          
+          // Try radio buttons first (for variant picker pills)
+          const radioInput = document.querySelector(
+            `input[type="radio"][name="options[${product.options[index]}]"][value="${optionValue}"]`
+          );
+          
+          if (radioInput) {
+            radioInput.checked = true;
+            radioInput.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log(`Updated ${product.options[index]} to ${optionValue}`);
+          } else {
+            // Try select dropdown
+            const selectInput = document.querySelector(`select[name="options[${product.options[index]}]"]`);
+            if (selectInput) {
+              selectInput.value = optionValue;
+              selectInput.dispatchEvent(new Event('change', { bubbles: true }));
+              console.log(`Updated ${product.options[index]} to ${optionValue}`);
+            }
+          }
+        });
       }
     }
     
@@ -313,6 +362,9 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
     return false;
   });
 });
+
+// Don't use mutation observer - it breaks the initial layout
+// The hover functionality already calls applyFlexibleImageStyles when needed
 
 </script> 
                 <div {{ block.shopify_attributes }}>
