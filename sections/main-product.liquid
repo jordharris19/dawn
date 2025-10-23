@@ -40,6 +40,12 @@
         padding-bottom: {{ section.settings.padding_bottom }}px;
       }
     }
+
+    /* Cap product media height for this section to avoid overly tall containers */
+    .section-{{ section.id }}-padding .product-media-container.constrain-height {
+      /* 100vh - 30vh = 70vh max padding height */
+      --viewport-offset: 30vh;
+    }
   {%- endstyle -%}
 
   <script src="{{ 'product-info.js' | asset_url }}" defer="defer"></script>
@@ -113,7 +119,7 @@
                  <div class="variant-image-container">
                   {% for variant in product.variants %}
                     {% if variant.image %}
-                      <img src="{{ variant.image.src | img_url: 'small' }}" alt="{{ variant.title }}" class="variant-image{% if variant.id == product.selected_or_first_available_variant.id %} active{% endif %}" data-variant-id="{{ variant.id }}" data-large="{{ variant.image | img_url: '300x300' }}"  />
+                      <img src="{{ variant.image.src | img_url: 'small' }}" alt="{{ variant.title }}" class="variant-image{% if variant.id == product.selected_or_first_available_variant.id %} active{% endif %}" data-variant-id="{{ variant.id }}" data-large="{{ variant.image | img_url: '300x300' }}" data-variant-options='{{ variant.options | json | escape }}' {% if variant.featured_media %}data-media-id="{{ variant.featured_media.id }}"{% endif %}  />
                     {% endif %}
                   {% endfor %}
                 </div>
@@ -155,68 +161,6 @@ function getFullSizeImageUrl(src) {
   return src.replace(/_(small|medium|large|\d+x\d+)(?=\.\w{3,4})/, '');
 }
 
-// Track if we've already adjusted the container
-let containerAdjusted = false;
-
-// Function to apply flexible image styles (defined first so other functions can use it)
-function applyFlexibleImageStyles() {
-  const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
-  const mainImage = firstSlide ? firstSlide.querySelector('img') : document.querySelector('.product__media-wrapper img');
-  
-  if (!mainImage) return;
-  
-  console.log('Applying flexible styles - current width/height:', mainImage.width, mainImage.height);
-  
-  // Reset image attributes that Shopify might add
-  mainImage.removeAttribute('width');
-  mainImage.removeAttribute('height');
-  
-  // Force image to be flexible
-  mainImage.style.width = '100%';
-  mainImage.style.height = 'auto';
-  mainImage.style.maxWidth = '100%';
-  mainImage.style.objectFit = 'contain';
-  mainImage.style.display = 'block';
-  
-  // On first hover, make the container height flexible instead of fixed aspect ratio
-  if (!containerAdjusted) {
-    let parent = mainImage.parentElement;
-    let depth = 0;
-    while (parent && !parent.classList.contains('product__media-wrapper') && depth < 10) {
-      const classes = parent.className || '';
-      
-      // For the .media wrapper with padding-top aspect ratio, make it flexible height
-      if (parent.classList && parent.classList.contains('media')) {
-        // Remove the aspect ratio constraint by clearing padding-top
-        // and setting explicit height to auto
-        parent.style.paddingTop = '0';
-        parent.style.height = 'auto';
-        parent.style.minHeight = '0';
-        
-        // Position the image normally instead of absolutely
-        mainImage.style.position = 'relative';
-        mainImage.style.top = 'auto';
-        mainImage.style.left = 'auto';
-        
-        console.log('→ Made .media container flexible height');
-      }
-      
-      // Make sure product-media-container doesn't constrain height either
-      if (parent.classList && parent.classList.contains('product-media-container')) {
-        parent.style.height = 'auto';
-        parent.style.minHeight = '0';
-        console.log('→ Made .product-media-container flexible height');
-        containerAdjusted = true;
-      }
-      
-      parent = parent.parentElement;
-      depth++;
-    }
-  }
-  
-  console.log('Flexible styles applied, containerAdjusted:', containerAdjusted);
-}
-
 function updateMainImageWithVariant(variantImgSrc) {
   // Always target the FIRST slide (main variant image), not the currently visible slide
   const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
@@ -236,13 +180,27 @@ function updateMainImageWithVariant(variantImgSrc) {
   const widths = [246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946];
   const srcset = widths.map(w => `${baseUrl}?width=${w}${query} ${w}w`).join(', ');
 
-  // Update the main image
-  mainImage.src = `${baseUrl}?width=1946${query}`;
+  // Preserve the original src once, then update for preview
+  if (!mainImage.dataset.originalSrc) {
+    mainImage.setAttribute('data-original-src', mainImage.src);
+  }
+  // Update the main image src synchronously for hover preview
+  mainImage.src = `${baseUrl}?width=1100${query}`;
   mainImage.srcset = srcset;
-  mainImage.setAttribute('data-original-src', `${baseUrl}?width=1946${query}`);
-  
-  // ALWAYS apply flexible styles immediately
-  applyFlexibleImageStyles();
+
+  // Keep container ratio unchanged to prevent layout shifts
+}
+
+function restoreFirstSlideImage() {
+  const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
+  const mainImage = firstSlide ? firstSlide.querySelector('img') : document.querySelector('.product__media-wrapper img');
+  if (!mainImage) return;
+  const original = mainImage.dataset.originalSrc;
+  if (original) {
+    mainImage.src = original;
+    mainImage.removeAttribute('srcset');
+    mainImage.removeAttribute('data-original-src');
+  }
 }
 
 // Track the currently selected variant image (full size URL)
@@ -256,51 +214,17 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
     currentVariantImageSrc = thumb.dataset.large || thumb.src;
   }
 
-  // Hover to update image
+  // Hover preview (only if on first slide)
   thumb.addEventListener('mouseenter', () => {
-    // Always target the FIRST slide (main variant image), not the active slide
+    const activeSlide = document.querySelector('.product__media-wrapper .slider__slide.is-active');
     const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
-    const mainImage = firstSlide ? firstSlide.querySelector('img') : document.querySelector('.product__media-wrapper img');
-    
-    if (!mainImage) return;
-      
-    // Always update currentVariantImageSrc from the currently active variant image before hover
-    const activeVariant = document.querySelector('.variant-image.active');
-    if (activeVariant) {
-      currentVariantImageSrc = activeVariant.dataset.large || activeVariant.src;
-      console.log('Updated current variant from active:', currentVariantImageSrc);
+    if (activeSlide === firstSlide || !activeSlide) {
+      updateMainImageWithVariant(thumb.dataset.large || thumb.src);
     }
-    
-    // Store which slide was active before hover
-    if (!mainImage.dataset.wasActive) {
-      const activeSlide = document.querySelector('.product__media-wrapper .slider__slide.is-active');
-      if (activeSlide && activeSlide !== firstSlide) {
-        mainImage.dataset.wasActive = 'false';
-      } else {
-        mainImage.dataset.wasActive = 'true';
-      }
-    }
-    
-    updateMainImageWithVariant(thumb.src);
-    
-    console.log('Main image src after:', mainImage?.src);
   });
 
   thumb.addEventListener('mouseleave', () => {
-    console.log('Hover leave - restoring to:', currentVariantImageSrc);
-    
-    // Restore to the currently selected variant's image
-    if (currentVariantImageSrc) {
-      updateMainImageWithVariant(currentVariantImageSrc);
-    } else {
-      const mainImage = document.querySelector('.product__media img');
-      if (mainImage && mainImage.dataset.originalSrc) {
-        updateMainImageWithVariant(mainImage.dataset.originalSrc);
-      }
-    }
-    
-    const mainImage = document.querySelector('.product__media img');
-    console.log('Main image src after restore:', mainImage?.src);
+    restoreFirstSlideImage();
   });
 
   // Click to change variant without page refresh
@@ -310,42 +234,84 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
     
     if (!variantId) return;
     
-    // Update the current variant image source for hover restore (use large version)
-    currentVariantImageSrc = thumb.dataset.large || thumb.src;
-    console.log('Clicked variant - updated current variant src to:', currentVariantImageSrc);
-    
-    // Find the variant data from the product JSON
-    const productData = document.querySelector('[data-product-json]');
-    if (productData) {
-      const product = JSON.parse(productData.textContent);
-      const selectedVariant = product.variants.find(v => v.id == variantId);
-      
-      if (selectedVariant) {
-        console.log('Selected variant:', selectedVariant);
+    // Update option selectors SILENTLY (no events = no gallery rebuild)
+    const variantOptions = thumb.dataset.variantOptions;
+    if (variantOptions) {
+      try {
+        const options = JSON.parse(variantOptions);
+        const variantSelects = document.querySelector('variant-selects');
+        if (!variantSelects) return;
         
-        // Update each option selector (e.g., Color, Size, etc.)
-        selectedVariant.options.forEach((optionValue, index) => {
-          const optionPosition = index + 1; // Shopify uses 1-based indexing
+        const optionContainers = variantSelects.querySelectorAll('.product-form__input');
+        
+        options.forEach((optionValue, index) => {
+          let container = optionContainers[index];
           
-          // Try radio buttons first (for variant picker pills)
-          const radioInput = document.querySelector(
-            `input[type="radio"][name="options[${product.options[index]}]"][value="${optionValue}"]`
-          );
+          const valueInContainer = (c) => {
+            const radios = Array.from(c.querySelectorAll('input[type="radio"]')).map(r => r.value);
+            const selects = Array.from(c.querySelectorAll('select option')).map(o => o.value);
+            return radios.includes(optionValue) || selects.includes(optionValue);
+          };
           
-          if (radioInput) {
-            radioInput.checked = true;
-            radioInput.dispatchEvent(new Event('change', { bubbles: true }));
-            console.log(`Updated ${product.options[index]} to ${optionValue}`);
-          } else {
-            // Try select dropdown
-            const selectInput = document.querySelector(`select[name="options[${product.options[index]}]"]`);
-            if (selectInput) {
-              selectInput.value = optionValue;
-              selectInput.dispatchEvent(new Event('change', { bubbles: true }));
-              console.log(`Updated ${product.options[index]} to ${optionValue}`);
+          if (!container || !valueInContainer(container)) {
+            container = Array.from(optionContainers).find(c => valueInContainer(c)) || container;
+          }
+          if (!container) return;
+          
+          // Set inputs without events
+          const radioInputs = container.querySelectorAll('input[type="radio"]');
+          radioInputs.forEach(radio => {
+            if (radio.value === optionValue) radio.checked = true;
+          });
+          
+          if (radioInputs.length === 0) {
+            const select = container.querySelector('select');
+            if (select) {
+              const opt = Array.from(select.options).find(o => o.value === optionValue);
+              if (opt) select.value = optionValue;
             }
           }
         });
+        
+        // Update hidden inputs
+        const hiddenInputs = document.querySelectorAll('input[type="hidden"][name^="options["]');
+        hiddenInputs.forEach((input, idx) => {
+          if (options[idx]) input.value = options[idx];
+        });
+      } catch (e) {
+        console.error('Error updating options:', e);
+      }
+    }
+    
+    // Update variant ID and fetch updated info without rebuilding gallery
+    const productForm = document.querySelector('product-form form');
+    if (productForm) {
+      const variantInput = productForm.querySelector('input[name="id"]');
+      if (variantInput) {
+        variantInput.value = variantId;
+        
+        // Fetch and update only price/button, not media
+        const productInfo = document.querySelector('product-info');
+        if (productInfo) {
+          fetch(`${productInfo.dataset.url}?variant=${variantId}&section_id=${productInfo.dataset.section}`)
+            .then(r => r.text())
+            .then(html => {
+              const doc = new DOMParser().parseFromString(html, 'text/html');
+              
+              // Update price
+              const priceEl = document.getElementById(`price-${productInfo.dataset.section}`);
+              const newPrice = doc.getElementById(`price-${productInfo.dataset.section}`);
+              if (priceEl && newPrice) priceEl.innerHTML = newPrice.innerHTML;
+              
+              // Update button state
+              const btn = document.getElementById(`ProductSubmitButton-${productInfo.dataset.section}`);
+              const newBtn = doc.getElementById(`ProductSubmitButton-${productInfo.dataset.section}`);
+              if (btn && newBtn) {
+                newBtn.hasAttribute('disabled') ? btn.setAttribute('disabled', '') : btn.removeAttribute('disabled');
+              }
+            })
+            .catch(e => console.error('Failed to update', e));
+        }
       }
     }
     
@@ -359,12 +325,11 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
       variantSelectedDisplay.textContent = thumb.alt;
     }
     
+    // Let the theme's change handler update media; do not force setActiveMedia here
+
     return false;
   });
 });
-
-// Don't use mutation observer - it breaks the initial layout
-// The hover functionality already calls applyFlexibleImageStyles when needed
 
 </script> 
                 <div {{ block.shopify_attributes }}>

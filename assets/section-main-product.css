@@ -2,6 +2,11 @@ product-info {
   display: block;
 }
 
+media-gallery {
+  display: block;
+  position: relative;
+}
+
 .product {
   margin: 0;
 }
@@ -17,6 +22,11 @@ product-info {
 
 .product__media-wrapper {
   padding-left: 0;
+  position: relative;
+}
+
+.product__media-wrapper .media {
+  max-height: 100vh;
 }
 
 @media screen and (min-width: 750px) {
@@ -906,6 +916,10 @@ a.product__text {
 
 .product__media-list .media > * {
   overflow: hidden;
+}
+
+.product__media-list .media > img {
+  object-fit: contain;
 }
 
 .thumbnail-list {

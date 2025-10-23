@@ -61,6 +61,25 @@
     "homepage_image_xcaimJ": {
       "type": "homepage-image",
       "blocks": {
+        "image_item_WzRnYt": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/sale_animated_centered.gif",
+            "wide": true,
+            "title": "",
+            "subtitle": "",
+            "link": ""
+          }
+        },
+        "image_item_7pNyP3": {
+          "type": "image_item",
+          "settings": {
+            "wide": false,
+            "title": "Product Category",
+            "subtitle": "Shop now",
+            "link": ""
+          }
+        },
         "image_item_9LKbNz": {
           "type": "image_item",
           "settings": {
@@ -127,11 +146,21 @@
             "link": ""
           }
         },
+        "image_item_yq9eq3": {
+          "type": "image_item",
+          "settings": {
+            "image": "shopify://shop_images/057b9696f2665625b85d0e613a62ebb3.webp",
+            "wide": false,
+            "title": "Bedroom",
+            "subtitle": "Rest & Relax",
+            "link": ""
+          }
+        },
         "image_item_XcXPMA": {
           "type": "image_item",
           "settings": {
             "image": "shopify://shop_images/b70ab2e56e44872a90f0ff724f791d0f.webp",
-            "wide": true,
+            "wide": false,
             "title": "Coffee Tables",
             "subtitle": "Center of Attention",
             "link": ""
@@ -157,27 +186,20 @@
             "link": ""
           }
         },
-        "image_item_WzRnYt": {
-          "type": "image_item",
-          "settings": {
-            "image": "shopify://shop_images/d2fb2b9d921c19909f8b0f40f3da6374.webp",
-            "wide": false,
-            "title": "Sideboards",
-            "subtitle": "Storage & Style",
-            "link": ""
-          }
-        },
         "image_item_gEQzG4": {
           "type": "image_item",
           "settings": {
-            "wide": false,
-            "title": "Accessories",
-            "subtitle": "Finishing Touches",
+            "image": "shopify://shop_images/ChatGPT_Image_Oct_17_2025_03_45_15_PM.png",
+            "wide": true,
+            "title": "",
+            "subtitle": "",
             "link": ""
           }
         }
       },
       "block_order": [
+        "image_item_WzRnYt",
+        "image_item_7pNyP3",
         "image_item_9LKbNz",
         "image_item_aMTafE",
         "image_item_cLTJDt",
@@ -185,10 +207,10 @@
         "image_item_rFrKTt",
         "image_item_KcdKzA",
         "image_item_HJyVaM",
+        "image_item_yq9eq3",
         "image_item_XcXPMA",
         "image_item_JBdJ6A",
         "image_item_YGzVqQ",
-        "image_item_WzRnYt",
         "image_item_gEQzG4"
       ],
       "name": "Product Grid",
