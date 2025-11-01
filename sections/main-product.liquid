@@ -156,18 +156,22 @@
 
 
                   <script>
+// Wrap in IIFE to create a local scope for modal and prevent conflicts
+(function() {
+
 function getFullSizeImageUrl(src) {
   // Removes any Shopify size suffix like _small, _600x600, _large, etc.
   return src.replace(/_(small|medium|large|\d+x\d+)(?=\.\w{3,4})/, '');
 }
 
 function updateMainImageWithVariant(variantImgSrc) {
-  // Always target the FIRST slide (main variant image), not the currently visible slide
+  // Target the currently ACTIVE slide (the one being viewed)
+  const activeSlide = document.querySelector('.product__media-wrapper .slider__slide.is-active');
   const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
-  const mainImage = firstSlide ? firstSlide.querySelector('img') : document.querySelector('.product__media-wrapper img');
+  const targetSlide = activeSlide || firstSlide;
+  const mainImage = targetSlide ? targetSlide.querySelector('img') : document.querySelector('.product__media-wrapper img');
   
   if (!mainImage) {
-    console.warn('No main image found');
     return;
   }
 
@@ -180,31 +184,41 @@ function updateMainImageWithVariant(variantImgSrc) {
   const widths = [246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946];
   const srcset = widths.map(w => `${baseUrl}?width=${w}${query} ${w}w`).join(', ');
 
-  // Preserve the original src once, then update for preview
-  if (!mainImage.dataset.originalSrc) {
-    mainImage.setAttribute('data-original-src', mainImage.src);
+  // Store the original src before first modification
+  if (!mainImage.dataset.hoverOriginal) {
+    mainImage.dataset.hoverOriginal = mainImage.src;
   }
-  // Update the main image src synchronously for hover preview
+
+  // Update the main image src
   mainImage.src = `${baseUrl}?width=1100${query}`;
   mainImage.srcset = srcset;
 
   // Keep container ratio unchanged to prevent layout shifts
 }
 
-function restoreFirstSlideImage() {
-  const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
-  const mainImage = firstSlide ? firstSlide.querySelector('img') : document.querySelector('.product__media-wrapper img');
-  if (!mainImage) return;
-  const original = mainImage.dataset.originalSrc;
-  if (original) {
-    mainImage.src = original;
-    mainImage.removeAttribute('srcset');
-    mainImage.removeAttribute('data-original-src');
-  }
-}
-
 // Track the currently selected variant image (full size URL)
 let currentVariantImageSrc = null;
+
+function restoreToCurrentVariant() {
+  // Find the currently active slide
+  const activeSlide = document.querySelector('.product__media-wrapper .slider__slide.is-active');
+  const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
+  const targetSlide = activeSlide || firstSlide;
+  const mainImage = targetSlide ? targetSlide.querySelector('img') : null;
+  
+  if (!mainImage) return;
+  
+  // If we're on the first slide and have a selected variant, show that variant's image
+  if ((targetSlide === firstSlide || !activeSlide) && currentVariantImageSrc) {
+    updateMainImageWithVariant(currentVariantImageSrc);
+  } 
+  // Otherwise, restore the original image of the current slide
+  else if (mainImage.dataset.hoverOriginal) {
+    mainImage.src = mainImage.dataset.hoverOriginal;
+    mainImage.removeAttribute('srcset');
+    delete mainImage.dataset.hoverOriginal;
+  }
+}
 
 document.querySelectorAll('.variant-image').forEach(thumb => {
   const variantId = thumb.dataset.variantId;
@@ -214,17 +228,13 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
     currentVariantImageSrc = thumb.dataset.large || thumb.src;
   }
 
-  // Hover preview (only if on first slide)
+  // Hover preview - show the hovered variant's image
   thumb.addEventListener('mouseenter', () => {
-    const activeSlide = document.querySelector('.product__media-wrapper .slider__slide.is-active');
-    const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
-    if (activeSlide === firstSlide || !activeSlide) {
-      updateMainImageWithVariant(thumb.dataset.large || thumb.src);
-    }
+    updateMainImageWithVariant(thumb.dataset.large || thumb.src);
   });
 
   thumb.addEventListener('mouseleave', () => {
-    restoreFirstSlideImage();
+    restoreToCurrentVariant();
   });
 
   // Click to change variant without page refresh
@@ -233,6 +243,40 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
     e.stopPropagation();
     
     if (!variantId) return;
+    
+    // Update the current variant image for hover restore
+    currentVariantImageSrc = thumb.dataset.large || thumb.src;
+    
+    // Update the first slide to this variant's image (permanent change)
+    const firstSlide = document.querySelector('.product__media-wrapper .slider__slide:first-child');
+    const firstSlideImage = firstSlide ? firstSlide.querySelector('img') : null;
+    if (firstSlideImage) {
+      const baseUrl = getFullSizeImageUrl(currentVariantImageSrc).split('?')[0];
+      const queryMatch = currentVariantImageSrc.match(/(\?v=\d+)/);
+      const query = queryMatch ? queryMatch[1] : '';
+      const widths = [246, 493, 600, 713, 823, 990, 1100, 1206, 1346, 1426, 1646, 1946];
+      const srcset = widths.map(w => `${baseUrl}?width=${w}${query} ${w}w`).join(', ');
+      firstSlideImage.src = `${baseUrl}?width=1100${query}`;
+      firstSlideImage.srcset = srcset;
+      // Clear hover tracking since this is now the permanent image
+      delete firstSlideImage.dataset.hoverOriginal;
+      
+      // Navigate to the first slide and make it active
+      const allSlides = document.querySelectorAll('.product__media-wrapper .slider__slide');
+      allSlides.forEach((slide, idx) => {
+        if (idx === 0) {
+          slide.classList.add('is-active');
+        } else {
+          slide.classList.remove('is-active');
+        }
+      });
+      
+      // Scroll to the first slide
+      const slider = document.querySelector('.product__media-wrapper [id^="Slider-"]');
+      if (slider && firstSlide) {
+        firstSlide.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      }
+    }
     
     // Update option selectors SILENTLY (no events = no gallery rebuild)
     const variantOptions = thumb.dataset.variantOptions;
@@ -279,7 +323,7 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
           if (options[idx]) input.value = options[idx];
         });
       } catch (e) {
-        console.error('Error updating options:', e);
+        // Silently fail if options can't be updated
       }
     }
     
@@ -293,24 +337,44 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
         // Fetch and update only price/button, not media
         const productInfo = document.querySelector('product-info');
         if (productInfo) {
-          fetch(`${productInfo.dataset.url}?variant=${variantId}&section_id=${productInfo.dataset.section}`)
-            .then(r => r.text())
+          // Get the correct section ID - remove 'quickadd-' prefix if in modal
+          let sectionId = productInfo.dataset.section || '';
+          const originalSectionId = sectionId;
+          sectionId = sectionId.replace(/^quickadd-/, '');
+          
+          // Construct the product URL
+          const productUrl = productInfo.dataset.url || window.location.pathname.replace(/\/$/, '');
+          
+          fetch(`${productUrl}?variant=${variantId}&section_id=${sectionId}`)
+            .then(r => {
+              if (!r.ok) throw new Error(`HTTP ${r.status}`);
+              return r.text();
+            })
             .then(html => {
               const doc = new DOMParser().parseFromString(html, 'text/html');
               
-              // Update price
-              const priceEl = document.getElementById(`price-${productInfo.dataset.section}`);
-              const newPrice = doc.getElementById(`price-${productInfo.dataset.section}`);
+              // Update price using the original section ID for element IDs
+              const priceEl = document.getElementById(`price-${originalSectionId}`);
+              const newPrice = doc.getElementById(`price-${sectionId}`);
               if (priceEl && newPrice) priceEl.innerHTML = newPrice.innerHTML;
               
-              // Update button state
-              const btn = document.getElementById(`ProductSubmitButton-${productInfo.dataset.section}`);
-              const newBtn = doc.getElementById(`ProductSubmitButton-${productInfo.dataset.section}`);
+              // Update button state using the original section ID for element IDs
+              const btn = document.getElementById(`ProductSubmitButton-${originalSectionId}`);
+              const newBtn = doc.getElementById(`ProductSubmitButton-${sectionId}`);
               if (btn && newBtn) {
                 newBtn.hasAttribute('disabled') ? btn.setAttribute('disabled', '') : btn.removeAttribute('disabled');
               }
             })
-            .catch(e => console.error('Failed to update', e));
+            .catch(e => {
+              // Fallback: trigger variant-selects to update via change event
+              const variantSelects = document.querySelector('variant-selects');
+              if (variantSelects) {
+                const firstInput = variantSelects.querySelector('input[type="radio"]:checked, select');
+                if (firstInput) {
+                  firstInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              }
+            });
         }
       }
     }
@@ -330,6 +394,7 @@ document.querySelectorAll('.variant-image').forEach(thumb => {
     return false;
   });
 });
+})(); // End IIFE
 
 </script> 
                 <div {{ block.shopify_attributes }}>

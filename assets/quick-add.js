@@ -40,6 +40,13 @@ if (!customElements.get('quick-add-modal')) {
             if (window.ProductModel) window.ProductModel.loadShopifyXR();
 
             super.show(opener);
+
+            // Initialize gallery arrows after modal is shown and DOM is ready
+            setTimeout(() => {
+              if (window.initializeGalleryArrows) {
+                window.initializeGalleryArrows(this.modalContent);
+              }
+            }, 100);
           })
           .finally(() => {
             opener.removeAttribute('aria-disabled');
@@ -117,6 +124,6 @@ if (!customElements.get('quick-add-modal')) {
 
         mediaImages.forEach((img) => img.setAttribute('sizes', mediaImageSizes));
       }
-    }
+    },
   );
 }

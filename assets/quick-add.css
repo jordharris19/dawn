@@ -285,9 +285,27 @@ quick-add-modal .product:not(.featured-product) .product__view-details {
 }
 
 quick-add-modal .quick-add-hidden,
-quick-add-modal .product__modal-opener:not(.product__modal-opener--image),
-quick-add-modal .product__media-item:not(:first-child) {
+quick-add-modal .product__modal-opener:not(.product__modal-opener--image) {
   display: none !important;
+}
+
+quick-add-modal .product__media-item:not(:first-child):not(.is-active) {
+  display: none !important;
+}
+
+quick-add-modal .product__media-item.is-active {
+  display: block !important;
+}
+
+/* Remove transitions to prevent white flash when switching slides */
+quick-add-modal .product__media-item,
+quick-add-modal .product__media-item img {
+  transition: none !important;
+}
+
+/* Ensure images are visible immediately */
+quick-add-modal .product__media-item img {
+  opacity: 1 !important;
 }
 
 quick-add-modal .slider.slider--mobile {
